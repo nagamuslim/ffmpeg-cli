@@ -94,6 +94,4 @@ This branch is intended for users who want a simpler FFmpeg 4-based runtime prof
 
 - GitHub: https://github.com/nagamuslim/ffmpeg-cli
 
-## License
 
-MIT
