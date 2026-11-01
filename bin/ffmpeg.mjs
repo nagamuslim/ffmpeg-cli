@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-import { ensureHeap, createCore, livePrinter, isUrl, stripFile, stage, checkBudget, quiet, banner, fs, path } from "../lib/core.mjs";
+import { ensureHeap, createCore, isUrl, stripFile, stage, checkBudget, quiet, banner, fs, path } from "../lib/core.mjs";
 ensureHeap(import.meta.url);
 const args = process.argv.slice(2);
 
-if (args.includes("-version")) { const { ff } = await createCore(); process.stdout.write(banner(await ff.versionText())); process.exit(0); }
+if (args.includes("-version")) { const { ff } = await createCore(); process.stdout.write(banner(ff.version.core.raw)); process.exit(0); }
 if (!args.length || args.some((a) => ["-h", "-help", "--help"].includes(a))) {   // usage text comes from the real core
   const { ff, lines } = await createCore(); try { await ff.run(args.length ? "-h" : "-h"); } catch {}
   process.stdout.write(quiet(lines).join("\n") + "\n"); process.exit(args.length ? 0 : 1);
@@ -30,21 +30,19 @@ if (args.length && !lastConsumed && !last.startsWith("-") && !isUrl(last) && las
 for (const a of inputs) if (!fs.existsSync(a.real)) { process.stderr.write(`${a.real}: No such file or directory\n`); process.exit(1); }
 checkBudget(inputs.reduce((s, a) => s + fs.statSync(a.real).size, 0));
 
-const printer = process.env.FFWASM_QUIET ? null : livePrinter();
-const { ff, lines } = await createCore(printer);
+const { ff, lines } = await createCore();
 if (args.includes("-bsfs")) {            // yt-dlp reads banner + filter list from stdout
   try { await ff.run("-bsfs"); } catch {}
   const i = lines.findIndex((l) => /^Bitstream filters:/.test(l));
-  process.stdout.write((await ff.versionText()).split("\n").slice(0, 1).join("\n") + "\n" + lines.slice(i).filter((l)=>l.trim()).join("\n") + "\n");
+  process.stdout.write(ff.version.core.raw.split("\n").slice(0, 1).join("\n") + "\n" + lines.slice(i).filter((l)=>l.trim()).join("\n") + "\n");
   process.exit(0);
 }
-for (const a of inputs) await stage(ff, a.real, a.v);
+for (const a of inputs) stage(ff, a.real, a.v);
 let code = 1;
-try { code = await ff.run(...rewritten); } catch (e) { const m = `core error: ${e?.message || e}`; lines.push(m); printer?.(m); code = 1; }
+try { code = await ff.run(...rewritten); } catch (e) { lines.push(`core error: ${e?.message || e}`); code = 1; }
 if (code === 0 && out) {
-  try { fs.writeFileSync(out.real, await ff.fs.readFile(out.v)); }
-  catch { const m = `no output produced for ${out.real}`; lines.push(m); printer?.(m); code = 1; }
+  try { fs.writeFileSync(out.real, ff.fs.readFile(out.v)); }
+  catch { lines.push(`no output produced for ${out.real}`); code = 1; }
 }
-printer?.finish();
-if (code !== 0 && !printer) process.stderr.write(quiet(lines).slice(-15).join("\n") + "\n");
+if (code !== 0) process.stderr.write(quiet(lines).slice(-15).join("\n") + "\n");
 process.exit(code);

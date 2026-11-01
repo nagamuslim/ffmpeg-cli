@@ -1,7 +1,7 @@
 {
   "name": "@nagamuslim/ffmpeg-cli",
-  "version": "0.5.3",
-  "description": "ffmpeg and real ffprobe CLI launchers backed by FFmpeg 9.0.2 compiled to wasm",
+  "version": "0.3.0",
+  "description": "ffmpeg and ffprobe CLI launchers backed by ffmpeg.wasm (FFmpeg 4.x)",
   "type": "module",
   "bin": {
     "ffmpeg": "bin/ffmpeg.mjs",
@@ -19,11 +19,11 @@
     "access": "public"
   },
   "dependencies": {
-    "@project516/ffmpeg-wasm": "0.17.0",
-    "@project516/ffmpeg-wasm-core": "0.17.0"
+    "@ffmpeg.wasm/main": "0.13.1",
+    "@ffmpeg.wasm/core-st": "0.13.2"
   },
   "engines": {
     "node": ">=18"
   },
-  "license": "AGPL-3.0-or-later"
+  "license": "MIT"
 }
