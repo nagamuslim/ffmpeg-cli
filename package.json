@@ -1,0 +1,29 @@
+{
+  "name": "@nagamuslim/ffmpeg-cli",
+  "version": "0.5.3",
+  "description": "ffmpeg and real ffprobe CLI launchers backed by FFmpeg 9.0.2 compiled to wasm",
+  "type": "module",
+  "bin": {
+    "ffmpeg": "bin/ffmpeg.mjs",
+    "ffprobe": "bin/ffprobe.mjs"
+  },
+  "files": [
+    "bin",
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nagamuslim/ffmpeg-cli.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@project516/ffmpeg-wasm": "0.17.0",
+    "@project516/ffmpeg-wasm-core": "0.17.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "AGPL-3.0-or-later"
+}
