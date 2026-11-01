@@ -1,6 +1,6 @@
 {
   "name": "@nagamuslim/ffmpeg-cli",
-  "version": "0.3.0",
+  "version": "0.1.0-ffmpeg4",
   "description": "ffmpeg and ffprobe CLI launchers backed by ffmpeg.wasm (FFmpeg 4.x)",
   "type": "module",
   "bin": {
