@@ -1,89 +1,91 @@
 # ffmpeg-cli
 
-A lightweight Node.js CLI wrapper that provides `ffmpeg` and `ffprobe` for workflows like `yt-dlp`.
+A lightweight Node.js CLI wrapper that provides `ffmpeg` and `ffprobe` for workflows like `yt-dlp`, backed by WebAssembly.
 
-This package is useful when you want a portable FFmpeg-compatible command interface without depending on a system-installed ffmpeg binary.
+No native system compilation or system-installed FFmpeg binary is required.
 
-## Recommended install
+## Installation
 
-Install globally:
+You can install either the modern **FFmpeg 9** engine or the lightweight **FFmpeg 4** engine via npm distribution tags.
+
+### 1. FFmpeg 9 (Recommended / `latest`)
+
+Backed by FFmpeg 9.0.2 compiled to Wasm with a real native `ffprobe`.
 
 ```bash
-npm install -g ffmpeg-cli
+npm install -g @nagamuslim/ffmpeg-cli
 ```
 
-After installation, the executables are available on your PATH:
+You can also specify the `ffmpeg9` or `latest` tag explicitly:
+
+```bash
+npm install -g @nagamuslim/ffmpeg-cli@ffmpeg9
+# or
+npm install -g @nagamuslim/ffmpeg-cli@latest
+```
+
+### 2. FFmpeg 4 (Lightweight / `ffmpeg4`)
+
+Backed by FFmpeg 4.3 with a lighter memory profile.
+
+```bash
+npm install -g @nagamuslim/ffmpeg-cli@ffmpeg4
+```
+
+---
+
+## Verifying Installation
+
+After installing globally, `ffmpeg` and `ffprobe` will be available directly on your PATH:
 
 ```bash
 ffmpeg -version
 ffprobe -version
 ```
 
-This means `yt-dlp` can usually find them automatically without needing any extra option:
+This allows tools like `yt-dlp` to detect and use them automatically:
 
 ```bash
 yt-dlp "https://example.com/video"
 ```
 
-## Local install
+---
 
-If you prefer a local install:
+## Local Installation
+
+If you prefer installing locally within a project:
 
 ```bash
-npm install ffmpeg-cli
+npm install @nagamuslim/ffmpeg-cli
 ```
 
-Then add the local bin directory to your PATH:
+Then reference the binaries from `./node_modules/.bin`:
 
 ```bash
 export PATH="./node_modules/.bin:$PATH"
-```
-
-or call `yt-dlp` with the local location:
-
-```bash
 yt-dlp "https://example.com/video" --ffmpeg-location ./node_modules/.bin
 ```
 
-## Example usage
+---
 
-Download a video:
+## Example Usage
 
-```bash
-yt-dlp "https://example.com/video"
-```
+- **Download and merge streams with yt-dlp:**
+  ```bash
+  yt-dlp -f bestvideo+bestaudio --merge-output-format mp4 "https://example.com/video"
+  ```
 
-Download and merge streams:
+- **Extract audio to MP3:**
+  ```bash
+  ffmpeg -i input.mp4 -vn -acodec libmp3lame output.mp3
+  ```
 
-```bash
-yt-dlp -f bestvideo+bestaudio --merge-output-format mp4 "https://example.com/video"
-```
+- **Inspect media stream metadata:**
+  ```bash
+  ffprobe input.mp4
+  ```
 
-Extract audio:
-
-```bash
-ffmpeg -i input.mp4 -vn -acodec libmp3lame output.mp3
-```
-
-Inspect media metadata:
-
-```bash
-ffprobe input.mp4
-```
-
-## FFmpeg 4 light version
-
-If you want the lighter FFmpeg 4-oriented build, use the `ffmpeg4` branch:
-
-```bash
-git checkout ffmpeg4
-```
-
-This branch is intended for users who want a simpler FFmpeg 4-based runtime profile.
-
-## How it works
-
-`ffmpeg-cli` exposes `ffmpeg` and `ffprobe` as standard command-line tools through a Node.js package. With a global install, they behave like normal ffmpeg utilities and work naturally with tools such as `yt-dlp`.
+---
 
 ## Requirements
 
@@ -93,5 +95,3 @@ This branch is intended for users who want a simpler FFmpeg 4-based runtime prof
 ## Repository
 
 - GitHub: https://github.com/nagamuslim/ffmpeg-cli
-
-
