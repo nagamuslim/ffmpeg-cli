@@ -1,4 +1,4 @@
-name: Publish Package
+name: Publish to npm
 
 on:
   push:
@@ -9,7 +9,6 @@ on:
 
 permissions:
   contents: read
-  packages: write
 
 jobs:
   publish:
@@ -22,13 +21,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
-
-      - name: Authenticate Registries
-        run: |
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
-          if [ -n "${{ secrets.NPM_TOKEN }}" ]; then
-            echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
-          fi
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Determine dist-tag
         id: dist_tag
@@ -36,17 +29,21 @@ jobs:
         run: |
           if [ "${{ github.ref_name }}" = "main" ]; then
             echo "tag=latest" >> $GITHUB_OUTPUT
+            echo "is_main=true" >> $GITHUB_OUTPUT
           elif [ "${{ github.ref_name }}" = "ffmpeg4" ]; then
             echo "tag=ffmpeg4" >> $GITHUB_OUTPUT
-          else
-            echo "tag=latest" >> $GITHUB_OUTPUT
+            echo "is_main=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Publish to GitHub Packages
-        run: npm publish --registry=https://npm.pkg.github.com --tag ${{ steps.dist_tag.outputs.tag }}
-
-      - name: Publish to npm Registry
-        if: env.NPM_TOKEN != ''
-        run: npm publish --registry=https://registry.npmjs.org --access=public --tag ${{ steps.dist_tag.outputs.tag }}
+      - name: Publish to npm
+        run: npm publish --access=public --tag ${{ steps.dist_tag.outputs.tag }}
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Add ffmpeg9 dist-tag (main branch)
+        if: steps.dist_tag.outputs.is_main == 'true'
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          npm dist-tag add @nagamuslim/ffmpeg-cli@$VERSION ffmpeg9
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
