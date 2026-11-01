@@ -22,7 +22,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
-          scope: '@nagamuslim'
+
+      - name: Authenticate Registries
+        run: |
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+          if [ -n "${{ secrets.NPM_TOKEN }}" ]; then
+            echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
+          fi
 
       - name: Determine dist-tag
         id: dist_tag
@@ -38,12 +44,9 @@ jobs:
 
       - name: Publish to GitHub Packages
         run: npm publish --registry=https://npm.pkg.github.com --tag ${{ steps.dist_tag.outputs.tag }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to npm Registry
         if: env.NPM_TOKEN != ''
         run: npm publish --registry=https://registry.npmjs.org --access=public --tag ${{ steps.dist_tag.outputs.tag }}
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
